@@ -28,7 +28,7 @@ interface SettingsFormProps {
 
 
 const formSchema = z.object({
-    name: z.string().min(1)
+    name: z.string().min(1),
 })
 
 type SettingsFormValues = z.infer<typeof formSchema>
@@ -50,6 +50,8 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
         try{
             setLoading(true)
             await axios.patch(`/api/stores/${params.storeId}`, data)
+            router.refresh()
+            toast.success('Tienda actualizada')
         }catch(error){
             toast.error("Algo salio mal")
         }finally{

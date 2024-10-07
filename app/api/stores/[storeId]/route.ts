@@ -24,7 +24,7 @@ export async function PATCH(
         }
 
 
-        const store = prismadb.store.updateMany({
+        const store = await prismadb.store.updateMany({
             where: {
                 id: params.storeId,
                 userId
