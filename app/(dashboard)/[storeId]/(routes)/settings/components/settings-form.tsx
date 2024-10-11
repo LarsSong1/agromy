@@ -21,6 +21,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { AlertModal } from "@/components/modals/alert-modal";
+import { ApiAlert } from "@/components/ui/api-alert";
 
 interface SettingsFormProps {
     initialData: Store;
@@ -47,20 +49,41 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
     })
 
     const onSubmit = async (data: SettingsFormValues) => {
-        try{
+        try {
             setLoading(true)
             await axios.patch(`/api/stores/${params.storeId}`, data)
             router.refresh()
             toast.success('Tienda actualizada')
-        }catch(error){
+        } catch (error) {
             toast.error("Algo salio mal")
-        }finally{
+        } finally {
             setLoading(false)
+        }
+    }
+
+    const onDelete = async () => {
+        try {
+            setLoading(true)
+            await axios.delete(`/api/stores/${params.storeId}`)
+            router.refresh()
+            router.push("/")
+            toast.success("Tienda eliminada correctamente")
+        } catch (error) {
+            toast.error("Asegurate de remover todos los productos y categorias primero")
+        } finally {
+            setLoading(false)
+            setOpen(false)
         }
     }
 
     return (
         <>
+            <AlertModal
+                isOpen={open}
+                onClose={() => setOpen(false)}
+                onConfirm={onDelete}
+                loading={loading}
+            />
             <div className="flex items-center justify-between">
                 <Heading
                     title="Settings"
@@ -96,7 +119,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
                                             {...field}
                                         />
                                     </FormControl>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -109,6 +132,12 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
                 </form>
 
             </Form>
+            <Separator />
+            <ApiAlert
+                title={"NEXT_PUBLIC_API_URL"}
+                description={`${origin}/api/${params.storeId}`}
+                variant="public"
+            />
         </>
     )
 }

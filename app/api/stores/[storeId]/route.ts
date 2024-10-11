@@ -44,6 +44,7 @@ export async function PATCH(
 
 
 export async function DELETE(
+    req: Request,
     { params }: { params: { storeId: string } }
 ) {
     try {
@@ -60,11 +61,11 @@ export async function DELETE(
         }
 
 
-        const store = prismadb.store.deleteMany({
+        const store = await prismadb.store.deleteMany({
             where: {
                 id: params.storeId,
                 userId
-            },
+            }
         })
 
         return NextResponse.json(store)
