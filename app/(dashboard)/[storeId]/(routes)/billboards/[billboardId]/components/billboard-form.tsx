@@ -13,7 +13,7 @@ import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Store } from "@prisma/client";
+import { Billboard, Store } from "@prisma/client";
 import axios from "axios";
 import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -25,18 +25,21 @@ import { AlertModal } from "@/components/modals/alert-modal";
 import { ApiAlert } from "@/components/ui/api-alert";
 import { useOrigin } from "@/hooks/use-origin";
 
-interface SettingsFormProps {
-    initialData: Store;
+const formSchema = z.object({
+    label: z.string().min(1),
+    imageUrl: z.string().min(1),
+})
+
+type BillboardFormValues = z.infer<typeof formSchema>
+
+interface BillboardFormProps {
+    initialData: Billboard | null;
 }
 
 
-const formSchema = z.object({
-    name: z.string().min(1),
-})
 
-type SettingsFormValues = z.infer<typeof formSchema>
 
-export const SettingsForm: React.FC<SettingsFormProps> = ({
+export const BillboardForm: React.FC<BillboardFormProps> = ({
     initialData,
 }) => {
     const params = useParams()
@@ -47,12 +50,23 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
 
-    const form = useForm<SettingsFormValues>({
+
+    const title = initialData ? "Edita Cartelera" : "Crear Cartelera"
+    const description = initialData ? "Edita una Cartelera" : "Añade una nueva Cartelera"
+    const toastMessage = initialData ? "Cartelera actualizada" : "Cartelera creada"
+    const action = initialData ? "Guardar cambios" : "Crear"
+
+
+
+    const form = useForm<BillboardFormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: initialData,
+        defaultValues: initialData || {
+            label: '',
+            imageUrl: ''
+        },
     })
 
-    const onSubmit = async (data: SettingsFormValues) => {
+    const onSubmit = async (data: BillboardFormValues) => {
         try {
             setLoading(true)
             await axios.patch(`/api/stores/${params.storeId}`, data)
@@ -90,17 +104,19 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
             />
             <div className="flex items-center justify-between">
                 <Heading
-                    title="Settings"
-                    description="Administra configuración de Tiendas"
+                    title={title}
+                    description={description}
                 />
-                <Button
-                    disabled={loading}
-                    variant={'destructive'}
-                    size={'icon'}
-                    onClick={() => setOpen(true)}
-                >
-                    <Trash className="h-4 w-4" />
-                </Button>
+                {initialData && (
+                    <Button
+                        disabled={loading}
+                        variant={'destructive'}
+                        size={'icon'}
+                        onClick={() => setOpen(true)}
+                    >
+                        <Trash className="h-4 w-4" />
+                    </Button>
+                )}
             </div>
             <Separator />
             <Form {...form}>
@@ -110,7 +126,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
                     <div className="grid grid-cols-3 gap-8">
                         <FormField
                             control={form.control}
-                            name="name"
+                            name="label"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
@@ -119,7 +135,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
                                     <FormControl>
                                         <Input
                                             disabled={loading}
-                                            placeholder="Nombre de la Tienda"
+                                            placeholder="Nombre de la Cartelera"
                                             {...field}
                                         />
                                     </FormControl>
@@ -131,17 +147,13 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 
                     </div>
                     <Button disabled={loading} className="ml-auto" type="submit">
-                        Guardar cambios
+                        {action}
                     </Button>
                 </form>
 
             </Form>
             <Separator />
-            <ApiAlert
-                title={"NEXT_PUBLIC_API_URL"}
-                description={`${origin}/api/${params.storeId}`}
-                variant="public"
-            />
+
         </>
     )
 }
