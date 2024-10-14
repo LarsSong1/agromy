@@ -1,7 +1,7 @@
 'use client'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { BillboardColumn } from "./columns"
+import { SizeColumn } from "./columns"
 import { Button } from "@/components/ui/button"
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react"
 import { toast } from "sonner"
@@ -12,7 +12,7 @@ import { AlertModal } from "@/components/modals/alert-modal"
 
 
 interface CellActionProps {
-    data: BillboardColumn
+    data: SizeColumn
 }
 
 export const CellAction: React.FC<CellActionProps> = ({
@@ -27,18 +27,18 @@ export const CellAction: React.FC<CellActionProps> = ({
 
     const onCopy = (id: string) => {
         navigator.clipboard.writeText(id)
-        toast.success("ID de cartelera copiado correctamente")
+        toast.success("ID del Tamaño copiado correctamente")
     }
 
     const onDelete = async () => {
         try {
             setLoading(true)
             console.log(params.billboardId)
-            await axios.delete(`/api/${params.storeId}/billboards/${data.id}`)
+            await axios.delete(`/api/${params.storeId}/sizes/${data.id}`)
             router.refresh()
-            toast.success("Cartelera Eliminada")
+            toast.success("Tamaño Eliminado")
         } catch (error) {
-            toast.error("Asegurate de remover todos los categorias usando esta cartelera primero")
+            toast.error("Asegurate de remover todos los productos usando este tamaño primero")
         } finally {
             setLoading(false)
             setOpen(false)
@@ -70,7 +70,7 @@ export const CellAction: React.FC<CellActionProps> = ({
                             <Copy className="mr-2 h-4 w-4" />
                             Copiar Id
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.push(`/${params.storeId}/billboards/${data.id}`)}>
+                        <DropdownMenuItem onClick={() => router.push(`/${params.storeId}/sizes/${data.id}`)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Editar
                         </DropdownMenuItem>

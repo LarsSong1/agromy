@@ -13,7 +13,7 @@ import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Billboard, Store } from "@prisma/client";
+import { Size} from "@prisma/client";
 import axios from "axios";
 import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -25,20 +25,20 @@ import { AlertModal } from "@/components/modals/alert-modal";
 import ImageUpload from "@/components/ui/image-upload";
 
 const formSchema = z.object({
-    label: z.string().min(1),
-    imageUrl: z.string().min(1),
+    name: z.string().min(1),
+    value: z.string().min(1),
 })
 
-type BillboardFormValues = z.infer<typeof formSchema>
+type SizeFormValues = z.infer<typeof formSchema>
 
-interface BillboardFormProps {
-    initialData: Billboard | null;
+interface SizeFormProps {
+    initialData: Size | null;
 }
 
 
 
 
-export const BillboardForm: React.FC<BillboardFormProps> = ({
+export const SizeForm: React.FC<SizeFormProps> = ({
     initialData,
 }) => {
     const params = useParams()
@@ -49,33 +49,33 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
     const [loading, setLoading] = useState(false)
 
 
-    const title = initialData ? "Edita Cartelera" : "Crear Cartelera"
-    const description = initialData ? "Edita una Cartelera" : "Añade una nueva Cartelera"
-    const toastMessage = initialData ? "Cartelera actualizada" : "Cartelera creada"
+    const title = initialData ? "Edita Tamaño" : "Crear Tamaño"
+    const description = initialData ? "Edita un Tamaño" : "Añade un nuevo Tamaño"
+    const toastMessage = initialData ? "Tamaño actualizado" : "Tamaño creado"
     const action = initialData ? "Guardar cambios" : "Crear"
 
 
 
-    const form = useForm<BillboardFormValues>({
+    const form = useForm<SizeFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: initialData || {
-            label: '',
-            imageUrl: ''
+            name: '',
+            value: ''
         },
     })
 
     
 
-    const onSubmit = async (data: BillboardFormValues) => {
+    const onSubmit = async (data: SizeFormValues) => {
         console.log(data)
         try {
             setLoading(true)
             if (initialData) {
-                await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, data)
+                await axios.patch(`/api/${params.storeId}/sizes/${params.sizeId}`, data)
             } else {
-                await axios.post(`/api/${params.storeId}/billboards`, data)
+                await axios.post(`/api/${params.storeId}/sizes`, data)
             }
-            router.push(`/${params.storeId}/billboards`)
+            router.push(`/${params.storeId}/sizes`)
             router.refresh()
             toast.success(toastMessage)
         } catch (error) {
@@ -89,12 +89,12 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
         try {
             setLoading(true)
             console.log(params.billboardId)
-            await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`)
-            router.push(`/${params.storeId}/billboards`)
+            await axios.delete(`/api/${params.storeId}/sizes/${params.sizeId}`)
+            router.push(`/${params.storeId}/sizes`)
             router.refresh()
-            toast.success("Cartelera Eliminada")
+            toast.success("Tamaño Eliminado")
         } catch (error) {
-            toast.error("Asegurate de remover todos los categorias usando esta cartelera primero")
+            toast.error("Asegurate de remover todos los productos usando esta tamaño primero")
         } finally {
             setLoading(false)
             setOpen(false)
@@ -130,30 +130,10 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                 <form onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-8 w-full"
                 >
-                    <FormField
-                        control={form.control}
-                        name="imageUrl"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    Imagen de la Cartelera
-                                </FormLabel>
-                                <FormControl>
-                                    <ImageUpload
-                                        value={field.value ? [field.value] : []}
-                                        disabled={loading}
-                                        onChange={(url) => field.onChange(url)}
-                                        onRemove={() => field.onChange("")}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
                     <div className="grid grid-cols-3 gap-8">
                         <FormField
                             control={form.control}
-                            name="label"
+                            name="name"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel htmlFor="label">
@@ -163,7 +143,27 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                                         <Input
                                             id="label"
                                             disabled={loading}
-                                            placeholder="Nombre de la Cartelera"
+                                            placeholder="Nombre del Tamaño"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="value"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel htmlFor="label">
+                                        Valor
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            id="label"
+                                            disabled={loading}
+                                            placeholder="Valor del Tamaño"
                                             {...field}
                                         />
                                     </FormControl>
