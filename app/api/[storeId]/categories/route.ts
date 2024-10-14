@@ -10,18 +10,18 @@ export async function POST(
     try {
         const { userId } = auth()
         const body = await req.json()
-        const { label, imageUrl } = body
+        const { name, billboardId } = body
 
         if (!userId) {
             return new NextResponse("No estas autenticado", { status: 401 })
         }
 
-        if (!label) {
+        if (!name) {
             return new NextResponse("Debes proporcionar un nombre", { status: 400 })
         }
 
-        if (!imageUrl) {
-            return new NextResponse("Debes proporcionar una imagen", { status: 400 })
+        if (!billboardId) {
+            return new NextResponse("Debes proporcionar un Id de una Cartelera", { status: 400 })
         }
 
 
@@ -41,18 +41,18 @@ export async function POST(
             return new NextResponse("No tienes permisos para esta tienda", { status: 403 })
         }
 
-        const billboard = await prismadb.billboard.create({
+        const category = await prismadb.category.create({
             data: {
-                label,
-                imageUrl,
+                name,
+                billboardId,
                 storeId: params.storeId
             }
         })
 
 
-        return NextResponse.json(billboard)
+        return NextResponse.json(category)
     } catch (error) {
-        console.log(["BILLBOARDS_POST"], error)
+        console.log(["CATEGORIES_POST"], error)
         return new NextResponse("Error interno", { status: 500 })
     }
 }
@@ -69,14 +69,14 @@ export async function GET(
             return new NextResponse("Id de la tienda es requerido", { status: 400 })
         }
 
-        const billboards = await prismadb.billboard.findMany({
+        const categories = await prismadb.category.findMany({
             where: {
                 storeId: params.storeId
             }
         })
 
 
-        return NextResponse.json(billboards)
+        return NextResponse.json(categories)
     } catch (error) {
         console.log(["BILBOARDS_GET"], error)
         return new NextResponse("Error interno", { status: 500 })
