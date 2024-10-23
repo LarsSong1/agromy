@@ -28,7 +28,7 @@ export const Overview: React.FC<OverviewProps> = ({
                 stroke="#888888"
             
             />
-            <Bar dataKey={"Total"} fill="#3498db" radius={[4,4,0,0]}/>
+            <Bar dataKey={"total"} fill="#3498db" radius={[4,4,0,0]}/>
         </BarChart>
     </ResponsiveContainer>
   )
